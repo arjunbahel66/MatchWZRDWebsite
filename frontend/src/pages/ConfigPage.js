@@ -12,6 +12,8 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import SaveIcon from '@mui/icons-material/Save';
 import EditIcon from '@mui/icons-material/Edit';
+import SettingsIcon from '@mui/icons-material/Settings';
+import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import axios from 'axios';
 
 const ConfigPage = () => {
@@ -818,64 +820,126 @@ const ConfigPage = () => {
 
   return (
     <Container maxWidth="xl">
-      <Paper elevation={3} sx={{ p: 2, mt: 2, mb: 2 }}>
-        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', mb: 2 }}>
-          <Typography variant="h4" component="h1" align="center">
+      <Paper 
+        elevation={3} 
+        sx={{ 
+          p: 4, 
+          mt: 3, 
+          mb: 4, 
+          background: 'linear-gradient(to bottom, #ffffff 0%, #f8f9fa 100%)',
+          borderRadius: '16px'
+        }}
+      >
+        {/* Header Section */}
+        <Box sx={{ textAlign: 'center', mb: 4 }}>
+          <Typography 
+            variant="h4" 
+            component="h1" 
+            gutterBottom
+            sx={{ fontWeight: 700, color: '#2c3e50' }}
+          >
             Configuration Management
           </Typography>
+          <Typography 
+            variant="body1" 
+            sx={{ 
+              color: '#78909c',
+              maxWidth: '800px',
+              mx: 'auto',
+              lineHeight: 1.6
+            }}
+          >
+            Upload and manage school configuration data. Each school has 6 breakout sessions with specific capacities.
+            Edit data directly in the table and save your changes to the database.
+          </Typography>
         </Box>
-        <Typography paragraph color="text.secondary" sx={{ mb: 2 }} align="center">
-          Upload and manage school configuration data. Each school has 6 breakout sessions with specific capacities.
-          You can edit the data in the table below. Click on any cell to edit its value.
-          Click "Save Configuration" to persist your changes to the database.
-        </Typography>
         
-        <Grid container spacing={2}>
+        <Grid container spacing={3}>
           <Grid item xs={12}>
             <Box 
               {...getRootProps()} 
               sx={{
-                border: '2px dashed #cccccc',
-                borderRadius: 2,
-                p: 2,
+                border: isDragActive ? '3px dashed #667eea' : '2px dashed #e0e0e0',
+                borderRadius: '16px',
+                p: 4,
                 textAlign: 'center',
                 cursor: isLoading ? 'not-allowed' : 'pointer',
-                bgcolor: isDragActive ? 'rgba(25, 118, 210, 0.04)' : 'transparent',
+                bgcolor: isDragActive ? 'rgba(102, 126, 234, 0.08)' : 'transparent',
+                transition: 'all 0.3s ease',
+                position: 'relative',
+                overflow: 'hidden',
                 '&:hover': {
-                  bgcolor: isLoading ? 'transparent' : 'rgba(25, 118, 210, 0.04)'
+                  bgcolor: isLoading ? 'transparent' : 'rgba(102, 126, 234, 0.04)',
+                  borderColor: '#667eea',
+                  transform: isLoading ? 'none' : 'translateY(-2px)',
+                  boxShadow: isLoading ? 'none' : '0 8px 24px rgba(0,0,0,0.08)'
                 }
               }}
             >
               <input {...getInputProps()} disabled={isLoading} />
               {isLoading ? (
-                <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1 }}>
-                  <CircularProgress size={24} />
-                  <Typography variant="body1">Processing file...</Typography>
+                <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
+                  <CircularProgress size={40} thickness={4} sx={{ color: '#667eea' }} />
+                  <Typography variant="h6" sx={{ color: '#546e7a' }}>Processing file...</Typography>
                 </Box>
               ) : (
-                <>
-                  <Typography variant="body1" gutterBottom>
-                    {isDragActive ? 'Drop the file here' : 'Drag and drop an Excel or CSV file here, or click to select'}
+                <Box>
+                  <Box 
+                    sx={{ 
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      width: '80px',
+                      height: '80px',
+                      borderRadius: '50%',
+                      background: 'linear-gradient(135deg, #667eea22 0%, #764ba211 100%)',
+                      mb: 2
+                    }}
+                  >
+                    <CloudUploadIcon sx={{ fontSize: 40, color: '#667eea' }} />
+                  </Box>
+                  <Typography variant="h6" gutterBottom sx={{ color: '#2c3e50', fontWeight: 600 }}>
+                    {isDragActive ? 'Drop the file here' : 'Upload Configuration File'}
                   </Typography>
-                  <Typography variant="body2" color="text.secondary">
+                  <Typography variant="body2" sx={{ color: '#78909c', mb: 1 }}>
+                    Drag and drop an Excel or CSV file, or click to browse
+                  </Typography>
+                  <Typography variant="caption" sx={{ color: '#b0bec5' }}>
                     Accepted formats: .xlsx, .xls, .csv
                   </Typography>
-                </>
+                </Box>
               )}
             </Box>
           </Grid>
           
           {file && (
             <Grid item xs={12}>
-              <Typography variant="body2">
-                Selected file: {file.name} ({(file.size / 1024).toFixed(2)} KB)
-              </Typography>
+              <Box 
+                sx={{ 
+                  p: 2, 
+                  borderRadius: '12px', 
+                  bgcolor: 'rgba(102, 126, 234, 0.08)',
+                  border: '1px solid rgba(102, 126, 234, 0.2)'
+                }}
+              >
+                <Typography variant="body2" sx={{ color: '#546e7a' }}>
+                  <strong>Selected file:</strong> {file.name} ({(file.size / 1024).toFixed(2)} KB)
+                </Typography>
+              </Box>
             </Grid>
           )}
           
           {uploadStatus && (
             <Grid item xs={12}>
-              <Alert severity={uploadStatus.type}>
+              <Alert 
+                severity={uploadStatus.type}
+                sx={{
+                  borderRadius: '12px',
+                  '& .MuiAlert-icon': {
+                    fontSize: '24px'
+                  }
+                }}
+              >
                 {uploadStatus.message}
               </Alert>
             </Grid>
@@ -883,17 +947,18 @@ const ConfigPage = () => {
 
           {uploadedData && (
             <Grid item xs={12}>
-              <Box sx={{ mb: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <Box sx={{ mb: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 2 }}>
                 <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
                   <TextField
                     variant="outlined"
                     placeholder="Search across all columns..."
                     value={searchText}
                     onChange={handleSearch}
+                    size="small"
                     InputProps={{
                       startAdornment: (
                         <InputAdornment position="start">
-                          <SearchIcon />
+                          <SearchIcon sx={{ color: '#667eea' }} />
                         </InputAdornment>
                       ),
                       endAdornment: searchText && (
@@ -904,13 +969,33 @@ const ConfigPage = () => {
                         </InputAdornment>
                       ),
                     }}
-                    sx={{ width: 300 }}
+                    sx={{ 
+                      width: 300,
+                      '& .MuiOutlinedInput-root': {
+                        borderRadius: '12px',
+                        '&:hover fieldset': {
+                          borderColor: '#667eea',
+                        },
+                        '&.Mui-focused fieldset': {
+                          borderColor: '#667eea',
+                        }
+                      }
+                    }}
                   />
                   <Tooltip title="Filter data">
                     <Button
                       variant="outlined" 
                       startIcon={<FilterListIcon />}
                       size="small"
+                      sx={{
+                        borderRadius: '10px',
+                        textTransform: 'none',
+                        fontWeight: 600,
+                        transition: 'all 0.3s ease',
+                        '&:hover': {
+                          transform: 'translateY(-2px)'
+                        }
+                      }}
                     >
                       Filter
                     </Button>
@@ -920,6 +1005,15 @@ const ConfigPage = () => {
                       variant="outlined" 
                       startIcon={<SortIcon />}
                       size="small"
+                      sx={{
+                        borderRadius: '10px',
+                        textTransform: 'none',
+                        fontWeight: 600,
+                        transition: 'all 0.3s ease',
+                        '&:hover': {
+                          transform: 'translateY(-2px)'
+                        }
+                      }}
                     >
                       Sort
                     </Button>
@@ -929,24 +1023,53 @@ const ConfigPage = () => {
                   <Tooltip title="Refresh data from database">
                     <Button
                       variant="outlined"
-                      color="primary"
                       onClick={loadDataFromDatabase}
                       startIcon={<RefreshIcon />}
                       size="small"
+                      sx={{
+                        borderRadius: '10px',
+                        textTransform: 'none',
+                        fontWeight: 600,
+                        borderColor: '#667eea',
+                        color: '#667eea',
+                        '&:hover': {
+                          borderColor: '#667eea',
+                          backgroundColor: 'rgba(102, 126, 234, 0.08)',
+                          transform: 'translateY(-2px)',
+                          boxShadow: '0 4px 12px rgba(102, 126, 234, 0.2)'
+                        },
+                        transition: 'all 0.3s ease'
+                      }}
                     >
-                      Refresh Data
+                      Refresh
                     </Button>
                   </Tooltip>
                   <Tooltip title="Save configuration to database">
                     <Button
-                      variant="outlined"
-                      color="primary"
+                      variant="contained"
                       onClick={saveDataToDatabase}
                       startIcon={<SaveIcon />}
                       disabled={!uploadedData || uploadedData.length === 0}
                       size="small"
+                      sx={{
+                        borderRadius: '10px',
+                        textTransform: 'none',
+                        fontWeight: 600,
+                        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                        boxShadow: '0 4px 12px rgba(102, 126, 234, 0.3)',
+                        '&:hover': {
+                          background: 'linear-gradient(135deg, #5568d3 0%, #6a4092 100%)',
+                          transform: 'translateY(-2px)',
+                          boxShadow: '0 6px 16px rgba(102, 126, 234, 0.4)'
+                        },
+                        '&:disabled': {
+                          background: '#e0e0e0',
+                          color: '#9e9e9e'
+                        },
+                        transition: 'all 0.3s ease'
+                      }}
                     >
-                      Save Configuration
+                      Save
                     </Button>
                   </Tooltip>
                   <Tooltip title="Clear database">
@@ -957,8 +1080,18 @@ const ConfigPage = () => {
                       startIcon={<DeleteIcon />}
                       disabled={!uploadedData || uploadedData.length === 0}
                       size="small"
+                      sx={{
+                        borderRadius: '10px',
+                        textTransform: 'none',
+                        fontWeight: 600,
+                        transition: 'all 0.3s ease',
+                        '&:hover': {
+                          transform: 'translateY(-2px)',
+                          boxShadow: '0 4px 12px rgba(220, 0, 78, 0.2)'
+                        }
+                      }}
                     >
-                      Clear Database
+                      Clear
                     </Button>
                   </Tooltip>
                   <Tooltip title="Add new row">
@@ -967,6 +1100,16 @@ const ConfigPage = () => {
                       color="primary"
                       startIcon={<AddIcon />}
                       onClick={handleAddRow}
+                      sx={{
+                        borderRadius: '10px',
+                        textTransform: 'none',
+                        fontWeight: 600,
+                        transition: 'all 0.3s ease',
+                        '&:hover': {
+                          transform: 'translateY(-2px)',
+                          boxShadow: '0 6px 16px rgba(25, 118, 210, 0.3)'
+                        }
+                      }}
                     >
                       Add Row
                     </Button>
@@ -978,6 +1121,16 @@ const ConfigPage = () => {
                       startIcon={<DeleteIcon />}
                       onClick={handleDeleteRows}
                       disabled={selectedRows.length === 0}
+                      sx={{
+                        borderRadius: '10px',
+                        textTransform: 'none',
+                        fontWeight: 600,
+                        transition: 'all 0.3s ease',
+                        '&:hover': {
+                          transform: 'translateY(-2px)',
+                          boxShadow: '0 6px 16px rgba(220, 0, 78, 0.3)'
+                        }
+                      }}
                     >
                       Delete ({selectedRows.length})
                     </Button>
@@ -985,7 +1138,17 @@ const ConfigPage = () => {
                 </Box>
               </Box>
               
-              <Paper elevation={2} sx={{ p: 1, height: 'calc(100vh - 200px)', width: '100%', overflow: 'hidden' }}>
+              <Paper 
+                elevation={2} 
+                sx={{ 
+                  p: 2, 
+                  height: 'calc(100vh - 300px)', 
+                  width: '100%', 
+                  overflow: 'hidden',
+                  borderRadius: '16px',
+                  border: '1px solid rgba(0, 0, 0, 0.08)'
+                }}
+              >
                 <DataGrid
                   ref={dataGridRef}
                   rows={gridDataWithTotal || []}
@@ -1094,9 +1257,20 @@ const ConfigPage = () => {
         </Grid>
       </Paper>
       
-      {/* Add the edit dialog */}
-      <Dialog open={editDialogOpen} onClose={handleCloseEditDialog}>
-        <DialogTitle>Edit Cell Value</DialogTitle>
+      {/* Edit Dialog */}
+      <Dialog 
+        open={editDialogOpen} 
+        onClose={handleCloseEditDialog}
+        PaperProps={{
+          sx: {
+            borderRadius: '16px',
+            minWidth: '400px'
+          }
+        }}
+      >
+        <DialogTitle sx={{ fontWeight: 700, color: '#2c3e50' }}>
+          Edit Cell Value
+        </DialogTitle>
         <DialogContent>
           <TextField
             autoFocus
@@ -1107,11 +1281,46 @@ const ConfigPage = () => {
             variant="outlined"
             value={editValue}
             onChange={(e) => setEditValue(e.target.value)}
+            sx={{
+              mt: 2,
+              '& .MuiOutlinedInput-root': {
+                borderRadius: '12px',
+                '&:hover fieldset': {
+                  borderColor: '#667eea',
+                },
+                '&.Mui-focused fieldset': {
+                  borderColor: '#667eea',
+                }
+              }
+            }}
           />
         </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCloseEditDialog}>Cancel</Button>
-          <Button onClick={handleSaveEdit} color="primary">Save</Button>
+        <DialogActions sx={{ p: 2, gap: 1 }}>
+          <Button 
+            onClick={handleCloseEditDialog}
+            sx={{
+              borderRadius: '10px',
+              textTransform: 'none',
+              fontWeight: 600
+            }}
+          >
+            Cancel
+          </Button>
+          <Button 
+            onClick={handleSaveEdit} 
+            variant="contained"
+            sx={{
+              borderRadius: '10px',
+              textTransform: 'none',
+              fontWeight: 600,
+              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              '&:hover': {
+                background: 'linear-gradient(135deg, #5568d3 0%, #6a4092 100%)',
+              }
+            }}
+          >
+            Save
+          </Button>
         </DialogActions>
       </Dialog>
     </Container>
