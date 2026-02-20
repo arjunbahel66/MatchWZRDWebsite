@@ -760,13 +760,13 @@ const ConfigPage = () => {
               <Paper 
                 elevation={2} 
                 sx={{ 
-                  p: 2, 
+                  p: 0, 
                   height: 'calc(100vh - 250px)', 
                   minHeight: '600px',
                   width: '100%', 
                   overflow: 'hidden',
                   borderRadius: '16px',
-                  border: '1px solid rgba(0, 0, 0, 0.08)'
+                  border: 'none'
                 }}
               >
                 <DataGrid
@@ -790,6 +790,16 @@ const ConfigPage = () => {
                     },
                   }}
                   sx={{
+                    border: 'none',
+                    '& .MuiDataGrid-filler': {
+                      display: 'none'
+                    },
+                    '& .MuiDataGrid-row': {
+                      borderBottom: '1px solid rgba(224, 224, 224, 1)',
+                      '&:last-child': {
+                        borderBottom: 'none'
+                      }
+                    },
                     '& .column-header': {
                       fontWeight: 700,
                       fontSize: '0.85rem',

@@ -2,27 +2,16 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { Container, Typography, Paper, Button, Grid, Box, Alert, CircularProgress, TextField, InputAdornment, IconButton, Tooltip, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
 import { useDropzone } from 'react-dropzone';
 import { DataGrid, GridToolbar } from '@mui/x-data-grid';
-import { styled } from '@mui/material/styles';
 import SearchIcon from '@mui/icons-material/Search';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import SortIcon from '@mui/icons-material/Sort';
 import ClearIcon from '@mui/icons-material/Clear';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
-import EditIcon from '@mui/icons-material/Edit';
 import RefreshIcon from '@mui/icons-material/Refresh';
+import SaveIcon from '@mui/icons-material/Save';
+import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import axios from 'axios';
-
-const FileUploadBox = styled(Box)(({ theme }) => ({
-  border: '2px dashed #cccccc',
-  borderRadius: theme.shape.borderRadius,
-  padding: theme.spacing(3),
-  textAlign: 'center',
-  cursor: 'pointer',
-  '&:hover': {
-    backgroundColor: theme.palette.action.hover,
-  },
-}));
 
 const PreferencesPage = () => {
   const [file, setFile] = useState(null);
@@ -408,115 +397,223 @@ const PreferencesPage = () => {
 
   return (
     <Container maxWidth="xl">
-      <Paper elevation={3} sx={{ p: 4, mt: 4, mb: 4 }}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
-          <Typography variant="h4" component="h1">
+      <Paper 
+        elevation={3} 
+        sx={{ 
+          p: 4, 
+          mt: 3, 
+          mb: 4, 
+          background: 'linear-gradient(to bottom, #ffffff 0%, #f8f9fa 100%)',
+          borderRadius: '16px'
+        }}
+      >
+        {/* Header Section */}
+        <Box sx={{ textAlign: 'center', mb: 4 }}>
+          <Typography 
+            variant="h4" 
+            component="h1" 
+            gutterBottom
+            sx={{ fontWeight: 700, color: '#2c3e50' }}
+          >
             Student Preferences
           </Typography>
-          <Box sx={{ display: 'flex', gap: 2 }}>
-            <Button 
-              variant="outlined" 
-              color="primary" 
-              onClick={loadDataFromDatabase}
-              startIcon={<RefreshIcon />}
-            >
-              Refresh Data
-            </Button>
-            <Button 
-              variant="contained" 
-              color="success" 
-              onClick={saveDataToDatabase}
-              disabled={!uploadedData || uploadedData.length === 0}
-            >
-              Save Preferences
-            </Button>
-            <Button 
-              variant="outlined" 
-              color="error" 
-              onClick={clearDataFromDatabase}
-              disabled={!uploadedData || uploadedData.length === 0}
-            >
-              Clear Database
-            </Button>
-            <Button 
-              variant="contained" 
-              color="primary" 
-              onClick={handleProcess}
-              disabled={!uploadedData}
-            >
-              Process Preferences
-            </Button>
-          </Box>
+          <Typography 
+            variant="body1" 
+            sx={{ 
+              color: '#78909c',
+              maxWidth: '800px',
+              mx: 'auto',
+              lineHeight: 1.6
+            }}
+          >
+            Import Excel sheets with student preference data. Edit the data in the table and save your changes to the database.
+          </Typography>
         </Box>
-        <Typography paragraph color="text.secondary" sx={{ mb: 4 }}>
-          Import Excel sheets with student preference data. You can edit the data in the table below.
-          Click on any cell to edit its value. Click "Save Preferences" to persist your changes to the database.
-        </Typography>
 
-        <Grid container spacing={4}>
+        <Grid container spacing={3}>
           <Grid item xs={12}>
             <Box 
               {...getRootProps()} 
               sx={{
-                border: '2px dashed #cccccc',
-                borderRadius: 2,
-                p: 3,
+                border: isDragActive ? '3px dashed #f093fb' : '2px dashed #e0e0e0',
+                borderRadius: '16px',
+                p: 4,
                 textAlign: 'center',
                 cursor: isLoading ? 'not-allowed' : 'pointer',
-                bgcolor: isDragActive ? 'rgba(25, 118, 210, 0.04)' : 'transparent',
+                bgcolor: isDragActive ? 'rgba(240, 147, 251, 0.08)' : 'transparent',
+                transition: 'all 0.3s ease',
                 '&:hover': {
-                  bgcolor: isLoading ? 'transparent' : 'rgba(25, 118, 210, 0.04)'
+                  bgcolor: isLoading ? 'transparent' : 'rgba(240, 147, 251, 0.04)',
+                  borderColor: '#f093fb',
+                  transform: isLoading ? 'none' : 'translateY(-2px)',
+                  boxShadow: isLoading ? 'none' : '0 8px 24px rgba(0,0,0,0.08)'
                 }
               }}
             >
               <input {...getInputProps()} disabled={isLoading} />
               {isLoading ? (
                 <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
-                  <CircularProgress size={24} />
-                  <Typography variant="body1">Processing file...</Typography>
+                  <CircularProgress size={40} thickness={4} sx={{ color: '#f093fb' }} />
+                  <Typography variant="h6" sx={{ color: '#546e7a' }}>Processing file...</Typography>
                 </Box>
               ) : (
-                <>
-                  <Typography variant="body1" gutterBottom>
-                    {isDragActive ? 'Drop the file here' : 'Drag and drop an Excel or CSV file here, or click to select'}
+                <Box>
+                  <Box 
+                    sx={{ 
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      width: '80px',
+                      height: '80px',
+                      borderRadius: '50%',
+                      background: 'linear-gradient(135deg, #f093fb22 0%, #f5576c11 100%)',
+                      mb: 2
+                    }}
+                  >
+                    <CloudUploadIcon sx={{ fontSize: 40, color: '#f093fb' }} />
+                  </Box>
+                  <Typography variant="h6" gutterBottom sx={{ color: '#2c3e50', fontWeight: 600 }}>
+                    {isDragActive ? 'Drop the file here' : 'Upload Student Preferences'}
                   </Typography>
-                  <Typography variant="body2" color="text.secondary">
+                  <Typography variant="body2" sx={{ color: '#78909c', mb: 1 }}>
+                    Drag and drop an Excel or CSV file, or click to browse
+                  </Typography>
+                  <Typography variant="caption" sx={{ color: '#b0bec5' }}>
                     Accepted formats: .xlsx, .xls, .csv
                   </Typography>
-                </>
+                </Box>
               )}
             </Box>
-          </Grid>
-
+          </Grid>          
           {file && (
             <Grid item xs={12}>
-              <Typography variant="body2">
-                Selected file: {file.name} ({(file.size / 1024).toFixed(2)} KB)
-              </Typography>
+              <Box 
+                sx={{ 
+                  p: 2, 
+                  borderRadius: '12px', 
+                  bgcolor: 'rgba(240, 147, 251, 0.08)',
+                  border: '1px solid rgba(240, 147, 251, 0.2)'
+                }}
+              >
+                <Typography variant="body2" sx={{ color: '#546e7a' }}>
+                  <strong>Selected file:</strong> {file.name} ({(file.size / 1024).toFixed(2)} KB)
+                </Typography>
+              </Box>
             </Grid>
           )}
 
           {uploadStatus && (
             <Grid item xs={12}>
-              <Alert severity={uploadStatus.type}>
+              <Alert 
+                severity={uploadStatus.type}
+                sx={{
+                  borderRadius: '12px',
+                  '& .MuiAlert-icon': {
+                    fontSize: '24px'
+                  }
+                }}
+              >
                 {uploadStatus.message}
               </Alert>
             </Grid>
           )}
 
+          {/* Action Buttons Row */}
           {uploadedData && (
             <Grid item xs={12}>
-              <Box sx={{ mb: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1.5, mb: 2 }}>
+                <Tooltip title="Refresh data from database">
+                  <Button
+                    variant="outlined"
+                    onClick={loadDataFromDatabase}
+                    startIcon={<RefreshIcon />}
+                    size="small"
+                    sx={{
+                      borderRadius: '10px',
+                      textTransform: 'none',
+                      fontWeight: 600,
+                      borderColor: '#f093fb',
+                      color: '#f093fb',
+                      '&:hover': {
+                        borderColor: '#f093fb',
+                        backgroundColor: 'rgba(240, 147, 251, 0.08)',
+                        transform: 'translateY(-2px)',
+                        boxShadow: '0 4px 12px rgba(240, 147, 251, 0.2)'
+                      },
+                      transition: 'all 0.3s ease'
+                    }}
+                  >
+                    Refresh
+                  </Button>
+                </Tooltip>
+                <Tooltip title="Save preferences to database">
+                  <Button
+                    variant="contained"
+                    onClick={saveDataToDatabase}
+                    startIcon={<SaveIcon />}
+                    disabled={!uploadedData || uploadedData.length === 0}
+                    size="small"
+                    sx={{
+                      borderRadius: '10px',
+                      textTransform: 'none',
+                      fontWeight: 600,
+                      background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+                      boxShadow: '0 4px 12px rgba(240, 147, 251, 0.3)',
+                      '&:hover': {
+                        background: 'linear-gradient(135deg, #e082ea 0%, #e4465b 100%)',
+                        transform: 'translateY(-2px)',
+                        boxShadow: '0 6px 16px rgba(240, 147, 251, 0.4)'
+                      },
+                      '&:disabled': {
+                        background: '#e0e0e0',
+                        color: '#9e9e9e'
+                      },
+                      transition: 'all 0.3s ease'
+                    }}
+                  >
+                    Save
+                  </Button>
+                </Tooltip>
+                <Tooltip title="Clear database">
+                  <Button
+                    variant="outlined"
+                    color="error"
+                    onClick={clearDataFromDatabase}
+                    startIcon={<DeleteIcon />}
+                    disabled={!uploadedData || uploadedData.length === 0}
+                    size="small"
+                    sx={{
+                      borderRadius: '10px',
+                      textTransform: 'none',
+                      fontWeight: 600,
+                      transition: 'all 0.3s ease',
+                      '&:hover': {
+                        transform: 'translateY(-2px)',
+                        boxShadow: '0 4px 12px rgba(220, 0, 78, 0.2)'
+                      }
+                    }}
+                  >
+                    Clear
+                  </Button>
+                </Tooltip>
+              </Box>
+            </Grid>
+          )}
+
+          {uploadedData && (
+            <Grid item xs={12}>
+              <Box sx={{ mb: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 2 }}>
                 <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
                   <TextField
                     variant="outlined"
                     placeholder="Search across all columns..."
                     value={searchText}
                     onChange={handleSearch}
+                    size="small"
                     InputProps={{
                       startAdornment: (
                         <InputAdornment position="start">
-                          <SearchIcon />
+                          <SearchIcon sx={{ color: '#f093fb' }} />
                         </InputAdornment>
                       ),
                       endAdornment: searchText && (
@@ -527,13 +624,33 @@ const PreferencesPage = () => {
                         </InputAdornment>
                       ),
                     }}
-                    sx={{ width: 300 }}
+                    sx={{ 
+                      width: 300,
+                      '& .MuiOutlinedInput-root': {
+                        borderRadius: '12px',
+                        '&:hover fieldset': {
+                          borderColor: '#f093fb',
+                        },
+                        '&.Mui-focused fieldset': {
+                          borderColor: '#f093fb',
+                        }
+                      }
+                    }}
                   />
                   <Tooltip title="Filter data">
                     <Button 
                       variant="outlined" 
                       startIcon={<FilterListIcon />}
                       size="small"
+                      sx={{
+                        borderRadius: '10px',
+                        textTransform: 'none',
+                        fontWeight: 600,
+                        transition: 'all 0.3s ease',
+                        '&:hover': {
+                          transform: 'translateY(-2px)'
+                        }
+                      }}
                     >
                       Filter
                     </Button>
@@ -543,6 +660,15 @@ const PreferencesPage = () => {
                       variant="outlined" 
                       startIcon={<SortIcon />}
                       size="small"
+                      sx={{
+                        borderRadius: '10px',
+                        textTransform: 'none',
+                        fontWeight: 600,
+                        transition: 'all 0.3s ease',
+                        '&:hover': {
+                          transform: 'translateY(-2px)'
+                        }
+                      }}
                     >
                       Sort
                     </Button>
@@ -555,6 +681,16 @@ const PreferencesPage = () => {
                       color="primary"
                       startIcon={<AddIcon />}
                       onClick={handleAddRow}
+                      sx={{
+                        borderRadius: '10px',
+                        textTransform: 'none',
+                        fontWeight: 600,
+                        transition: 'all 0.3s ease',
+                        '&:hover': {
+                          transform: 'translateY(-2px)',
+                          boxShadow: '0 6px 16px rgba(25, 118, 210, 0.3)'
+                        }
+                      }}
                     >
                       Add Row
                     </Button>
@@ -566,46 +702,88 @@ const PreferencesPage = () => {
                       startIcon={<DeleteIcon />}
                       onClick={handleDeleteRows}
                       disabled={selectedRows.length === 0}
+                      sx={{
+                        borderRadius: '10px',
+                        textTransform: 'none',
+                        fontWeight: 600,
+                        transition: 'all 0.3s ease',
+                        '&:hover': {
+                          transform: 'translateY(-2px)',
+                          boxShadow: '0 6px 16px rgba(220, 0, 78, 0.3)'
+                        }
+                      }}
                     >
                       Delete ({selectedRows.length})
                     </Button>
                   </Tooltip>
                 </Box>
               </Box>
-              <Paper elevation={2} sx={{ p: 2, height: 600, width: '100%', overflow: 'auto' }}>
+              <Paper 
+                elevation={2} 
+                sx={{ 
+                  p: 0, 
+                  height: 'calc(100vh - 250px)', 
+                  minHeight: '600px',
+                  width: '100%', 
+                  overflow: 'hidden',
+                  borderRadius: '16px',
+                  border: 'none'
+                }}
+              >
                 <DataGrid
                   rows={gridData || []}
                   columns={columnOrder.length > 0 
                     ? columnOrder.map((key) => ({
                         field: key,
                         headerName: key,
-                        width: key.toLowerCase().includes('email') ? 200 : 180,
+                        width: key.toLowerCase().includes('first name') || key.toLowerCase().includes('last name') ? 150 :
+                               key.toLowerCase().includes('email') ? 200 : 
+                               key.toLowerCase().includes('total') ? 100 : 120,
                         editable: true,
                         headerClassName: 'column-header',
                         renderCell: (params) => {
                           const value = params.value;
-                          return <div style={{ whiteSpace: 'normal', lineHeight: '1.2' }}>{value}</div>;
+                          return (
+                            <div style={{ 
+                              whiteSpace: 'nowrap',
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis',
+                              width: '100%'
+                            }}>
+                              {value}
+                            </div>
+                          );
                         }
                       }))
                     : Object.keys(uploadedData[0]).filter(key => key !== 'id').map((key) => ({
                         field: key,
                         headerName: key,
-                        width: key.toLowerCase().includes('email') ? 200 : 180,
+                        width: key.toLowerCase().includes('first name') || key.toLowerCase().includes('last name') ? 150 :
+                               key.toLowerCase().includes('email') ? 200 : 
+                               key.toLowerCase().includes('total') ? 100 : 120,
                         editable: true,
                         headerClassName: 'column-header',
                         renderCell: (params) => {
                           const value = params.value;
-                          return <div style={{ whiteSpace: 'normal', lineHeight: '1.2' }}>{value}</div>;
+                          return (
+                            <div style={{ 
+                              whiteSpace: 'nowrap',
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis',
+                              width: '100%'
+                            }}>
+                              {value}
+                            </div>
+                          );
                         }
                       }))
                   }
-                  pageSize={10}
-                  rowsPerPageOptions={[10, 25, 50, 100]}
+                  pageSize={25}
+                  rowsPerPageOptions={[25, 50, 100]}
                   checkboxSelection
                   disableSelectionOnClick
                   getRowId={(row) => row.id}
                   onRowSelectionModelChange={(newSelection) => {
-                    console.log("Selection changed:", newSelection);
                     setSelectedRows(newSelection);
                   }}
                   selectionModel={selectedRows}
@@ -619,25 +797,43 @@ const PreferencesPage = () => {
                       quickFilterProps: { debounceMs: 500 },
                     },
                   }}
+                  hideFooter={true}
                   sx={{
+                    border: 'none',
+                    '& .MuiDataGrid-filler': {
+                      display: 'none'
+                    },
+                    '& .MuiDataGrid-row': {
+                      borderBottom: '1px solid rgba(224, 224, 224, 1)',
+                      '&:last-child': {
+                        borderBottom: 'none'
+                      }
+                    },
                     '& .column-header': {
-                      fontWeight: 'bold',
+                      fontWeight: 700,
+                      fontSize: '0.85rem',
                       whiteSpace: 'normal',
-                      lineHeight: '1.2',
+                      lineHeight: '1.3',
                       height: 'auto',
-                      padding: '8px',
-                      minHeight: '80px',
+                      padding: '12px 8px',
+                      minHeight: '70px',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
                       textAlign: 'center',
+                      backgroundColor: '#f8f9fa',
+                      borderBottom: '2px solid #f093fb',
+                      wordWrap: 'break-word',
+                      wordBreak: 'break-word',
+                      overflowWrap: 'break-word',
                       overflow: 'visible'
                     },
                     '& .MuiDataGrid-cell': {
-                      whiteSpace: 'normal',
+                      whiteSpace: 'nowrap',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
                       lineHeight: '1.2',
                       padding: '8px',
-                      overflow: 'visible',
                       height: 'auto',
                       minHeight: '52px',
                       display: 'flex',
@@ -649,7 +845,8 @@ const PreferencesPage = () => {
                     },
                     '& .MuiDataGrid-columnHeaders': {
                       maxHeight: 'none !important',
-                      minHeight: '80px !important'
+                      minHeight: '70px !important',
+                      backgroundColor: '#f8f9fa'
                     }
                   }}
                 />
@@ -660,28 +857,90 @@ const PreferencesPage = () => {
       </Paper>
 
       {/* Add Row Dialog */}
-      <Dialog open={openAddDialog} onClose={() => setOpenAddDialog(false)} maxWidth="md" fullWidth>
-        <DialogTitle>Add New Row</DialogTitle>
+      <Dialog 
+        open={openAddDialog} 
+        onClose={() => setOpenAddDialog(false)} 
+        maxWidth="md" 
+        fullWidth
+        PaperProps={{
+          sx: {
+            borderRadius: '16px'
+          }
+        }}
+      >
+        <DialogTitle sx={{ fontWeight: 700, color: '#2c3e50' }}>Add New Row</DialogTitle>
         <DialogContent>
           {generateFormFields(newRow)}
         </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setOpenAddDialog(false)}>Cancel</Button>
-          <Button onClick={handleSaveNewRow} color="primary" variant="contained">
+        <DialogActions sx={{ p: 2, gap: 1 }}>
+          <Button 
+            onClick={() => setOpenAddDialog(false)}
+            sx={{
+              borderRadius: '10px',
+              textTransform: 'none',
+              fontWeight: 600
+            }}
+          >
+            Cancel
+          </Button>
+          <Button 
+            onClick={handleSaveNewRow} 
+            variant="contained"
+            sx={{
+              borderRadius: '10px',
+              textTransform: 'none',
+              fontWeight: 600,
+              background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+              '&:hover': {
+                background: 'linear-gradient(135deg, #e082ea 0%, #e4465b 100%)',
+              }
+            }}
+          >
             Save
           </Button>
         </DialogActions>
       </Dialog>
 
       {/* Edit Row Dialog */}
-      <Dialog open={openEditDialog} onClose={() => setOpenEditDialog(false)} maxWidth="md" fullWidth>
-        <DialogTitle>Edit Row</DialogTitle>
+      <Dialog 
+        open={openEditDialog} 
+        onClose={() => setOpenEditDialog(false)} 
+        maxWidth="md" 
+        fullWidth
+        PaperProps={{
+          sx: {
+            borderRadius: '16px'
+          }
+        }}
+      >
+        <DialogTitle sx={{ fontWeight: 700, color: '#2c3e50' }}>Edit Row</DialogTitle>
         <DialogContent>
           {generateFormFields(editingRow, true)}
         </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setOpenEditDialog(false)}>Cancel</Button>
-          <Button onClick={handleSaveEditedRow} color="primary" variant="contained">
+        <DialogActions sx={{ p: 2, gap: 1 }}>
+          <Button 
+            onClick={() => setOpenEditDialog(false)}
+            sx={{
+              borderRadius: '10px',
+              textTransform: 'none',
+              fontWeight: 600
+            }}
+          >
+            Cancel
+          </Button>
+          <Button 
+            onClick={handleSaveEditedRow} 
+            variant="contained"
+            sx={{
+              borderRadius: '10px',
+              textTransform: 'none',
+              fontWeight: 600,
+              background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+              '&:hover': {
+                background: 'linear-gradient(135deg, #e082ea 0%, #e4465b 100%)',
+              }
+            }}
+          >
             Save
           </Button>
         </DialogActions>
