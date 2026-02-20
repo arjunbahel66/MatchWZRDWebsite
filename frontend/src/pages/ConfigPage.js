@@ -601,42 +601,6 @@ const ConfigPage = () => {
                       }
                     }}
                   />
-                  <Tooltip title="Filter data">
-                    <Button
-                      variant="outlined" 
-                      startIcon={<FilterListIcon />}
-                      size="small"
-                      sx={{
-                        borderRadius: '10px',
-                        textTransform: 'none',
-                        fontWeight: 600,
-                        transition: 'all 0.3s ease',
-                        '&:hover': {
-                          transform: 'translateY(-2px)'
-                        }
-                      }}
-                    >
-                      Filter
-                    </Button>
-                  </Tooltip>
-                  <Tooltip title="Sort data">
-                    <Button
-                      variant="outlined" 
-                      startIcon={<SortIcon />}
-                      size="small"
-                      sx={{
-                        borderRadius: '10px',
-                        textTransform: 'none',
-                        fontWeight: 600,
-                        transition: 'all 0.3s ease',
-                        '&:hover': {
-                          transform: 'translateY(-2px)'
-                        }
-                      }}
-                    >
-                      Sort
-                    </Button>
-                  </Tooltip>
                 </Box>
                 <Box sx={{ display: 'flex', gap: 1 }}>
                   <Tooltip title="Refresh data from database">

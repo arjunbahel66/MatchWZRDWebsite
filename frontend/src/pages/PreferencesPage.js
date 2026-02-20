@@ -518,88 +518,6 @@ const PreferencesPage = () => {
             </Grid>
           )}
 
-          {/* Action Buttons Row */}
-          {uploadedData && (
-            <Grid item xs={12}>
-              <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1.5, mb: 2 }}>
-                <Tooltip title="Refresh data from database">
-                  <Button
-                    variant="outlined"
-                    onClick={loadDataFromDatabase}
-                    startIcon={<RefreshIcon />}
-                    size="small"
-                    sx={{
-                      borderRadius: '10px',
-                      textTransform: 'none',
-                      fontWeight: 600,
-                      borderColor: '#f093fb',
-                      color: '#f093fb',
-                      '&:hover': {
-                        borderColor: '#f093fb',
-                        backgroundColor: 'rgba(240, 147, 251, 0.08)',
-                        transform: 'translateY(-2px)',
-                        boxShadow: '0 4px 12px rgba(240, 147, 251, 0.2)'
-                      },
-                      transition: 'all 0.3s ease'
-                    }}
-                  >
-                    Refresh
-                  </Button>
-                </Tooltip>
-                <Tooltip title="Save preferences to database">
-                  <Button
-                    variant="contained"
-                    onClick={saveDataToDatabase}
-                    startIcon={<SaveIcon />}
-                    disabled={!uploadedData || uploadedData.length === 0}
-                    size="small"
-                    sx={{
-                      borderRadius: '10px',
-                      textTransform: 'none',
-                      fontWeight: 600,
-                      background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
-                      boxShadow: '0 4px 12px rgba(240, 147, 251, 0.3)',
-                      '&:hover': {
-                        background: 'linear-gradient(135deg, #e082ea 0%, #e4465b 100%)',
-                        transform: 'translateY(-2px)',
-                        boxShadow: '0 6px 16px rgba(240, 147, 251, 0.4)'
-                      },
-                      '&:disabled': {
-                        background: '#e0e0e0',
-                        color: '#9e9e9e'
-                      },
-                      transition: 'all 0.3s ease'
-                    }}
-                  >
-                    Save
-                  </Button>
-                </Tooltip>
-                <Tooltip title="Clear database">
-                  <Button
-                    variant="outlined"
-                    color="error"
-                    onClick={clearDataFromDatabase}
-                    startIcon={<DeleteIcon />}
-                    disabled={!uploadedData || uploadedData.length === 0}
-                    size="small"
-                    sx={{
-                      borderRadius: '10px',
-                      textTransform: 'none',
-                      fontWeight: 600,
-                      transition: 'all 0.3s ease',
-                      '&:hover': {
-                        transform: 'translateY(-2px)',
-                        boxShadow: '0 4px 12px rgba(220, 0, 78, 0.2)'
-                      }
-                    }}
-                  >
-                    Clear
-                  </Button>
-                </Tooltip>
-              </Box>
-            </Grid>
-          )}
-
           {uploadedData && (
             <Grid item xs={12}>
               <Box sx={{ mb: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 2 }}>
@@ -637,47 +555,85 @@ const PreferencesPage = () => {
                       }
                     }}
                   />
-                  <Tooltip title="Filter data">
-                    <Button 
-                      variant="outlined" 
-                      startIcon={<FilterListIcon />}
-                      size="small"
-                      sx={{
-                        borderRadius: '10px',
-                        textTransform: 'none',
-                        fontWeight: 600,
-                        transition: 'all 0.3s ease',
-                        '&:hover': {
-                          transform: 'translateY(-2px)'
-                        }
-                      }}
-                    >
-                      Filter
-                    </Button>
-                  </Tooltip>
-                  <Tooltip title="Sort data">
-                    <Button 
-                      variant="outlined" 
-                      startIcon={<SortIcon />}
-                      size="small"
-                      sx={{
-                        borderRadius: '10px',
-                        textTransform: 'none',
-                        fontWeight: 600,
-                        transition: 'all 0.3s ease',
-                        '&:hover': {
-                          transform: 'translateY(-2px)'
-                        }
-                      }}
-                    >
-                      Sort
-                    </Button>
-                  </Tooltip>
                 </Box>
                 <Box sx={{ display: 'flex', gap: 1 }}>
+                  <Tooltip title="Refresh data from database">
+                    <Button
+                      variant="outlined"
+                      onClick={loadDataFromDatabase}
+                      startIcon={<RefreshIcon />}
+                      size="small"
+                      sx={{
+                        borderRadius: '10px',
+                        textTransform: 'none',
+                        fontWeight: 600,
+                        borderColor: '#f093fb',
+                        color: '#f093fb',
+                        '&:hover': {
+                          borderColor: '#f093fb',
+                          backgroundColor: 'rgba(240, 147, 251, 0.08)',
+                          transform: 'translateY(-2px)',
+                          boxShadow: '0 4px 12px rgba(240, 147, 251, 0.2)'
+                        },
+                        transition: 'all 0.3s ease'
+                      }}
+                    >
+                      Refresh
+                    </Button>
+                  </Tooltip>
+                  <Tooltip title="Save preferences to database">
+                    <Button
+                      variant="contained"
+                      onClick={saveDataToDatabase}
+                      startIcon={<SaveIcon />}
+                      disabled={!uploadedData || uploadedData.length === 0}
+                      size="small"
+                      sx={{
+                        borderRadius: '10px',
+                        textTransform: 'none',
+                        fontWeight: 600,
+                        background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+                        boxShadow: '0 4px 12px rgba(240, 147, 251, 0.3)',
+                        '&:hover': {
+                          background: 'linear-gradient(135deg, #e082ea 0%, #e4465b 100%)',
+                          transform: 'translateY(-2px)',
+                          boxShadow: '0 6px 16px rgba(240, 147, 251, 0.4)'
+                        },
+                        '&:disabled': {
+                          background: '#e0e0e0',
+                          color: '#9e9e9e'
+                        },
+                        transition: 'all 0.3s ease'
+                      }}
+                    >
+                      Save
+                    </Button>
+                  </Tooltip>
+                  <Tooltip title="Clear database">
+                    <Button
+                      variant="outlined"
+                      color="error"
+                      onClick={clearDataFromDatabase}
+                      startIcon={<DeleteIcon />}
+                      disabled={!uploadedData || uploadedData.length === 0}
+                      size="small"
+                      sx={{
+                        borderRadius: '10px',
+                        textTransform: 'none',
+                        fontWeight: 600,
+                        transition: 'all 0.3s ease',
+                        '&:hover': {
+                          transform: 'translateY(-2px)',
+                          boxShadow: '0 4px 12px rgba(220, 0, 78, 0.2)'
+                        }
+                      }}
+                    >
+                      Clear
+                    </Button>
+                  </Tooltip>
                   <Tooltip title="Add new row">
-                    <Button 
-                      variant="contained" 
+                    <Button
+                      variant="contained"
                       color="primary"
                       startIcon={<AddIcon />}
                       onClick={handleAddRow}
@@ -696,8 +652,8 @@ const PreferencesPage = () => {
                     </Button>
                   </Tooltip>
                   <Tooltip title="Delete selected rows">
-                    <Button 
-                      variant="contained" 
+                    <Button
+                      variant="contained"
                       color="error"
                       startIcon={<DeleteIcon />}
                       onClick={handleDeleteRows}
