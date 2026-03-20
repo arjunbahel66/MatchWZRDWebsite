@@ -469,32 +469,45 @@ def generate_matches():
     return jsonify({'message': 'Matching algorithm executed successfully'})
 
 # Results endpoint
+@app.route('/api/results/check', methods=['GET'])
+def check_results():
+    try:
+        result = MatchingResult.query.first()
+        return jsonify({'exists': result is not None})
+    except Exception as e:
+        return jsonify({'exists': False, 'error': str(e)})
+
 @app.route('/api/results', methods=['GET'])
 def get_results():
     try:
-        # Get all matching results from the database
         results = MatchingResult.query.all()
         
-        # Convert to the format expected by the frontend
         matches = []
         for result in results:
+            pref = Preference.query.filter_by(
+                student_id=result.student_id,
+                school_id=result.school_id
+            ).first()
+            
             match = {
                 'id': result.id,
                 'student_id': result.student_id,
                 'student_name': f"{result.student.first_name} {result.student.last_name}",
-                'student_email': result.student.email,  # Add email to the response
+                'student_email': result.student.email,
                 'school_id': result.school_id,
                 'school_name': result.school.school_name,
                 'session_number': result.session_number,
-                'preference_score': result.student.preferences.filter_by(school_id=result.school_id).first().points
+                'preference_score': pref.points if pref else 0
             }
             matches.append(match)
         
         return jsonify({
+            'success': True,
             'matches': matches
         })
     except Exception as e:
         return jsonify({
+            'success': False,
             'error': f'Error retrieving results: {str(e)}'
         }), 500
 
@@ -713,14 +726,21 @@ def save_preferences():
                 db.session.add(student)
                 db.session.flush()  # Get the student ID
             
+            # Build a lookup from cleaned item keys to their values
+            skip_keys = {'id', 'First Name', 'Last Name', 'Email', 'Total'}
+            item_cleaned = {}
+            for key, val in item.items():
+                if key not in skip_keys:
+                    item_cleaned[clean_school_name(key)] = val
+            
             # Update preferences for each school
             for school_name, school_id in school_map.items():
                 # Skip non-school columns
                 if school_name in ['First Name', 'Last Name', 'Email', 'Total']:
                     continue
                 
-                # Get points for this school
-                points = item.get(school_name, 0)
+                # Get points for this school - try cleaned name match
+                points = item_cleaned.get(school_name, item.get(school_name, 0))
                 
                 # Find existing preference or create new one
                 preference = Preference.query.filter_by(
@@ -907,8 +927,8 @@ def process_preferences():
         
         # Import and run the matching algorithm
         print("Running matching algorithm...")
-        from matching import run_matching_algorithm, get_students_without_top_3_picks
-        result = run_matching_algorithm()
+        from matching import run_pulp_matching, get_students_without_top_3_picks
+        result = run_pulp_matching()
         
         if "error" in result:
             print(f"Error in matching algorithm: {result['error']}")

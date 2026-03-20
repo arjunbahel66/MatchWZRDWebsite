@@ -3,6 +3,7 @@ import numpy as np
 from database import Student, School, Preference, MatchingResult
 from app import db
 import random
+from pulp import LpProblem, LpMaximize, LpVariable, LpBinary, lpSum, LpStatus
 
 def run_matching_algorithm():
     """
@@ -186,6 +187,156 @@ def run_matching_algorithm():
             'school_fill_rates': school_fill_rates
         }
     }
+
+
+def run_pulp_matching():
+    """
+    Optimal matching algorithm using PuLP linear programming.
+    Maximizes total preference score across all assignments while respecting:
+    - Each student gets exactly 1 school per session (6 sessions)
+    - Each school per-session capacity is not exceeded
+    - No student visits the same school in multiple sessions
+    """
+    students = Student.query.all()
+    schools = School.query.all()
+    preferences = Preference.query.all()
+
+    if not students or not schools:
+        return {'error': 'No students or schools found in database'}
+
+    student_ids = [s.id for s in students]
+    school_ids = [s.id for s in schools]
+    sessions = list(range(1, 7))
+
+    # Build preference lookup: pref_points[student_id][school_id] = points
+    pref_points = {}
+    for pref in preferences:
+        if pref.student_id not in pref_points:
+            pref_points[pref.student_id] = {}
+        pref_points[pref.student_id][pref.school_id] = pref.points
+
+    # Build capacity lookup: capacity[school_id][session] = max students
+    capacity = {}
+    for school in schools:
+        capacity[school.id] = {
+            1: school.session1_capacity,
+            2: school.session2_capacity,
+            3: school.session3_capacity,
+            4: school.session4_capacity,
+            5: school.session5_capacity,
+            6: school.session6_capacity
+        }
+
+    # Create the LP problem
+    prob = LpProblem("MatchWZRD_Optimal", LpMaximize)
+
+    # Decision variables: x[s][k][t] = 1 if student s is assigned to school k in session t
+    x = {}
+    for s in student_ids:
+        x[s] = {}
+        for k in school_ids:
+            x[s][k] = {}
+            for t in sessions:
+                x[s][k][t] = LpVariable(f"x_{s}_{k}_{t}", cat=LpBinary)
+
+    # Objective: maximize total preference score
+    prob += lpSum(
+        pref_points.get(s, {}).get(k, 0) * x[s][k][t]
+        for s in student_ids
+        for k in school_ids
+        for t in sessions
+    ), "Total_Preference_Score"
+
+    # Constraint 1: Each student gets exactly 1 school per session
+    for s in student_ids:
+        for t in sessions:
+            prob += (
+                lpSum(x[s][k][t] for k in school_ids) == 1,
+                f"one_school_per_session_{s}_{t}"
+            )
+
+    # Constraint 2: Each school per-session capacity is respected
+    for k in school_ids:
+        for t in sessions:
+            prob += (
+                lpSum(x[s][k][t] for s in student_ids) <= capacity[k][t],
+                f"capacity_{k}_{t}"
+            )
+
+    # Constraint 3: No student visits the same school in multiple sessions
+    for s in student_ids:
+        for k in school_ids:
+            prob += (
+                lpSum(x[s][k][t] for t in sessions) <= 1,
+                f"no_repeat_{s}_{k}"
+            )
+
+    # Solve
+    print("Solving PuLP optimization problem...")
+    print(f"  Students: {len(student_ids)}, Schools: {len(school_ids)}, Sessions: {len(sessions)}")
+    print(f"  Variables: {len(student_ids) * len(school_ids) * len(sessions)}")
+
+    prob.solve()
+
+    status = LpStatus[prob.status]
+    print(f"  Solver status: {status}")
+
+    if status != "Optimal":
+        return {'error': f'Solver could not find optimal solution. Status: {status}'}
+
+    # Extract results
+    matches = []
+    student_lookup = {s.id: s for s in students}
+    school_lookup = {s.id: s for s in schools}
+
+    for s in student_ids:
+        for k in school_ids:
+            for t in sessions:
+                if x[s][k][t].varValue and x[s][k][t].varValue > 0.5:
+                    student = student_lookup[s]
+                    school = school_lookup[k]
+                    score = pref_points.get(s, {}).get(k, 0)
+
+                    matches.append({
+                        'student_id': s,
+                        'student_name': f"{student.first_name} {student.last_name}",
+                        'school_id': k,
+                        'school_name': school.school_name,
+                        'session_number': t,
+                        'preference_score': score
+                    })
+
+                    db_match = MatchingResult(
+                        student_id=s,
+                        school_id=k,
+                        session_number=t,
+                        algorithm_used='pulp_optimal'
+                    )
+                    db.session.add(db_match)
+
+    db.session.commit()
+
+    # Statistics
+    total_students = len(student_ids)
+    total_score = sum(m['preference_score'] for m in matches)
+    avg_score = total_score / len(matches) if matches else 0
+
+    print(f"  Total matches: {len(matches)}")
+    print(f"  Total preference score: {total_score}")
+    print(f"  Average preference score: {avg_score:.2f}")
+
+    return {
+        'matches': matches,
+        'statistics': {
+            'total_students': total_students,
+            'matched_students': total_students,
+            'unmatched_students': 0,
+            'average_preference_score': avg_score,
+            'total_preference_score': total_score,
+            'solver_status': status
+        }
+    }
+
 
 def import_preferences_from_excel(file_path):
     """
