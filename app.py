@@ -710,12 +710,8 @@ def save_preferences():
         
         # Process each student's preferences
         for item in preferences_data:
-            # Find or create student
-            student = Student.query.filter_by(
-                first_name=item['First Name'],
-                last_name=item['Last Name'],
-                email=item['Email']
-            ).first()
+            # Find by email (unique), or create student
+            student = Student.query.filter_by(email=item['Email']).first()
             
             if not student:
                 student = Student(
@@ -724,7 +720,7 @@ def save_preferences():
                     email=item['Email']
                 )
                 db.session.add(student)
-                db.session.flush()  # Get the student ID
+                db.session.flush()
             
             # Build a lookup from cleaned item keys to their values
             skip_keys = {'id', 'First Name', 'Last Name', 'Email', 'Total'}
